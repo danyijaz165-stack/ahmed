@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Product } from '@/data/products'
 import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useFlyingCart } from '@/contexts/FlyingCartContext'
 
 interface AddToCartButtonProps {
   product: Product
@@ -13,17 +14,51 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1)
   const { addToCart } = useCart()
   const { showToast } = useToast()
+  const { triggerAnimation } = useFlyingCart()
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null)
+  const buyNowButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-      })
+    // Trigger flying animation
+    if (addToCartButtonRef.current) {
+      triggerAnimation(product.image, addToCartButtonRef.current)
     }
-    showToast(`${quantity} x ${product.name} added to cart!`, 'success')
+    
+    // Small delay before adding to cart
+    setTimeout(() => {
+      for (let i = 0; i < quantity; i++) {
+        addToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        })
+      }
+      showToast(`${quantity} x ${product.name} added to cart!`, 'success')
+    }, 100)
+  }
+
+  const handleBuyNow = () => {
+    // Trigger flying animation
+    if (buyNowButtonRef.current) {
+      triggerAnimation(product.image, buyNowButtonRef.current)
+    }
+    
+    // Small delay before adding to cart and redirecting
+    setTimeout(() => {
+      for (let i = 0; i < quantity; i++) {
+        addToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        })
+      }
+      showToast(`${quantity} x ${product.name} added to cart!`, 'success')
+      setTimeout(() => {
+        window.location.href = '/cart'
+      }, 500)
+    }, 100)
   }
 
   return (
@@ -55,16 +90,15 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
 
       <div className="flex space-x-4">
         <button
+          ref={addToCartButtonRef}
           onClick={handleAddToCart}
           className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition font-semibold"
         >
           Add to cart
         </button>
         <button 
-          onClick={() => {
-            handleAddToCart()
-            window.location.href = '/cart'
-          }}
+          ref={buyNowButtonRef}
+          onClick={handleBuyNow}
           className="flex-1 bg-gray-200 text-black py-3 px-6 hover:bg-gray-300 transition font-semibold"
         >
           Buy it now

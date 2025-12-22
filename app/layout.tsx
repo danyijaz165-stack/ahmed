@@ -3,6 +3,7 @@ import './globals.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { CartProvider } from '@/contexts/CartContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { FlyingCartProvider } from '@/contexts/FlyingCartContext'
 import ChatbotWidget from '@/components/ChatbotWidget'
 
 export const metadata: Metadata = {
@@ -19,14 +20,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-white text-gray-900">
-        <CartProvider>
-          <ToastProvider>
-            <ThemeProvider>
-              {children}
-              <ChatbotWidget />
-            </ThemeProvider>
-          </ToastProvider>
-        </CartProvider>
+        <FlyingCartProvider>
+          <CartProvider>
+            <ToastProvider>
+              <ThemeProvider>
+                {children}
+                <ChatbotWidget />
+              </ThemeProvider>
+            </ToastProvider>
+          </CartProvider>
+        </FlyingCartProvider>
       </body>
     </html>
   )

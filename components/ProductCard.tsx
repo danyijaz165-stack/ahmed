@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { FiShoppingCart } from 'react-icons/fi'
 import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useFlyingCart } from '@/contexts/FlyingCartContext'
 
 interface ProductCardProps {
   id: string
@@ -27,21 +28,45 @@ export default function ProductCard({
   onSale = false,
 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null)
+  const buyNowButtonRef = useRef<HTMLButtonElement>(null)
   const { addToCart } = useCart()
   const { showToast } = useToast()
+  const { triggerAnimation } = useFlyingCart()
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    addToCart({ id, name, price, image })
-    showToast(`${name} added to cart!`, 'success')
+    
+    // Trigger flying animation
+    if (addToCartButtonRef.current) {
+      triggerAnimation(image, addToCartButtonRef.current)
+    }
+    
+    // Small delay before adding to cart for better UX
+    setTimeout(() => {
+      addToCart({ id, name, price, image })
+      showToast(`${name} added to cart!`, 'success')
+    }, 100)
   }
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    handleAddToCart(e)
-    window.location.href = '/cart'
+    
+    // Trigger flying animation
+    if (buyNowButtonRef.current) {
+      triggerAnimation(image, buyNowButtonRef.current)
+    }
+    
+    // Small delay before adding to cart and redirecting
+    setTimeout(() => {
+      addToCart({ id, name, price, image })
+      showToast(`${name} added to cart!`, 'success')
+      setTimeout(() => {
+        window.location.href = '/cart'
+      }, 500)
+    }, 100)
   }
 
   return (
@@ -82,6 +107,7 @@ export default function ProductCard({
           >
             <div className="flex flex-col gap-2 sm:gap-3 px-3 sm:px-4 w-full z-40">
               <button
+                ref={addToCartButtonRef}
                 onClick={handleAddToCart}
                 className="bg-white text-black py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 w-full shadow-xl transform hover:scale-105 text-sm sm:text-base"
               >
@@ -90,6 +116,7 @@ export default function ProductCard({
                 <span className="sm:hidden">Add</span>
               </button>
               <button
+                ref={buyNowButtonRef}
                 onClick={handleBuyNow}
                 className="bg-black text-white py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold hover:bg-gray-800 transition-all w-full shadow-xl transform hover:scale-105 text-sm sm:text-base"
               >

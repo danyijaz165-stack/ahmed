@@ -72,7 +72,7 @@ export default function ProductSlider({ title, products, viewAllLink }: ProductS
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.map((product) => (
-              <div key={product.id} className="flex-shrink-0 w-56 sm:w-64">
+              <div key={product.id} className="flex-shrink-0 w-[calc(50%-6px)] sm:w-56 md:w-64">
                 <ProductCard {...product} />
               </div>
             ))}

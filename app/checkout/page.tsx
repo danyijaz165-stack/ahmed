@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AnnouncementBar from '@/components/AnnouncementBar'
 import Header from '@/components/Header'
@@ -8,12 +8,15 @@ import Footer from '@/components/Footer'
 import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
 import Image from 'next/image'
+import { FiCheckCircle } from 'react-icons/fi'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { cart, updateCart } = useCart()
   const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false)
+  const placeOrderButtonRef = useRef<HTMLButtonElement>(null)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -62,7 +65,44 @@ export default function CheckoutPage() {
       localStorage.removeItem('cart')
       
       setLoading(false)
-      router.push(`/order-success?id=${order.id}`)
+      
+      // Show success animation
+      if (placeOrderButtonRef.current) {
+        setShowSuccessAnimation(true)
+        const buttonRect = placeOrderButtonRef.current.getBoundingClientRect()
+        
+        // Create success animation
+        const successIcon = document.createElement('div')
+        successIcon.style.position = 'fixed'
+        successIcon.style.left = `${buttonRect.left + buttonRect.width / 2}px`
+        successIcon.style.top = `${buttonRect.top + buttonRect.height / 2}px`
+        successIcon.style.width = '80px'
+        successIcon.style.height = '80px'
+        successIcon.style.zIndex = '99999'
+        successIcon.style.pointerEvents = 'none'
+        successIcon.style.transform = 'translate(-50%, -50%) scale(0)'
+        successIcon.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+        successIcon.style.color = '#10b981'
+        successIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" style="width: 100%; height: 100%;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>'
+        
+        document.body.appendChild(successIcon)
+        
+        // Animate success icon
+        requestAnimationFrame(() => {
+          successIcon.style.transform = 'translate(-50%, -50%) scale(1.5)'
+          successIcon.style.opacity = '1'
+        })
+        
+        // Remove and redirect
+        setTimeout(() => {
+          if (document.body.contains(successIcon)) {
+            document.body.removeChild(successIcon)
+          }
+          router.push(`/order-success?id=${order.id}`)
+        }, 800)
+      } else {
+        router.push(`/order-success?id=${order.id}`)
+      }
     }, 2000)
   }
 
@@ -268,9 +308,10 @@ export default function CheckoutPage() {
                 </div>
 
                 <button
+                  ref={placeOrderButtonRef}
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-black dark:bg-gray-800 text-white py-3 px-6 hover:bg-gray-800 dark:hover:bg-gray-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-black dark:bg-gray-800 text-white py-3 px-6 hover:bg-gray-800 dark:hover:bg-gray-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed relative"
                 >
                   {loading ? 'Processing...' : 'Place Order'}
                 </button>
