@@ -16,9 +16,74 @@ export default function ChatbotWidget() {
     {
       id: 1,
       from: 'bot',
-      text: 'Assalam-o-Alaikum! Main Ecolight ka assistant hoon. Lights, prices ya delivery ke bare mein kuch bhi poochhain 😊',
+      text: 'Hello! 👋 Welcome to Ecolight. I\'m here to help you with lighting products, prices, shipping, and more. How can I assist you today?',
     },
   ])
+
+  const getBotResponse = (userMessage: string): string => {
+    const message = userMessage.toLowerCase().trim()
+
+    // Greetings
+    if (message.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/)) {
+      return 'Hello! Welcome to Ecolight. How can I help you today?'
+    }
+
+    // Products
+    if (message.match(/(product|light|led|bulb|lamp|chandelier|ceiling|wall|outdoor|indoor)/)) {
+      if (message.match(/(price|cost|how much|pkr)/)) {
+        return 'Our lighting products range from PKR 1,800 to PKR 7,000. LED panels start at PKR 2,500, chandeliers from PKR 3,000, and decorative lamps from PKR 1,999. Check our catalog for detailed pricing!'
+      }
+      return 'We offer a wide range of lighting products including LED panels, chandeliers, pendant lights, track lights, wall sconces, floor lamps, table lamps, outdoor lights, and LED bulbs. Browse our catalog to see all products!'
+    }
+
+    // Shipping/Delivery
+    if (message.match(/(shipping|delivery|deliver|ship|free shipping|shipping cost|when will|how long)/)) {
+      return 'We offer FREE shipping on all orders over PKR 5,000! For orders below PKR 5,000, shipping charges are calculated at checkout. Delivery typically takes 3-5 business days within Pakistan.'
+    }
+
+    // Payment
+    if (message.match(/(payment|pay|cash|card|bank transfer|how to pay|payment method)/)) {
+      return 'We accept Cash on Delivery (COD) and Bank Transfer. You can choose your preferred payment method at checkout. All transactions are secure!'
+    }
+
+    // Contact
+    if (message.match(/(contact|phone|email|address|location|where|reach|get in touch)/)) {
+      return 'You can reach us through our Contact page. Fill out the contact form and we\'ll get back to you soon. You can also visit our website for more information!'
+    }
+
+    // Returns/Refunds
+    if (message.match(/(return|refund|exchange|warranty|guarantee|defective|broken)/)) {
+      return 'We offer a return and refund policy. If you receive a defective product, please contact us within 7 days of delivery. Check our Refund Policy page for detailed information.'
+    }
+
+    // Discount/Sale
+    if (message.match(/(discount|sale|offer|promotion|deal|save|cheap|affordable)/)) {
+      return 'We have great deals! Many products are on sale with up to 40% off. Check out our Featured Collection and All Lights sections for special offers. Plus, free shipping on orders over PKR 5,000!'
+    }
+
+    // Energy/Quality
+    if (message.match(/(energy|efficient|save|bill|quality|durable|long lasting|warranty)/)) {
+      return 'All our LED lights are energy-efficient and can save up to 80% on electricity bills! We use high-quality materials for durability and long-lasting performance. Most products come with warranty coverage.'
+    }
+
+    // Order status
+    if (message.match(/(order|track|status|where is my|when will i receive)/)) {
+      return 'To check your order status, please contact us through the Contact page with your order number. We\'ll provide you with the latest tracking information!'
+    }
+
+    // Catalog/Collection
+    if (message.match(/(catalog|collection|what do you have|show me|browse|view)/)) {
+      return 'We have several collections: Featured Collection (premium lighting), All Lights (complete range), and special categories like Living Room Lights, Bedroom Lamps, and Outdoor Lights. Visit our Catalog page to see everything!'
+    }
+
+    // Help
+    if (message.match(/(help|support|assist|problem|issue|trouble|don't know|confused)/)) {
+      return 'I\'m here to help! You can ask me about:\n• Product information and prices\n• Shipping and delivery\n• Payment methods\n• Returns and refunds\n• Energy efficiency\n• Contact information\nWhat would you like to know?'
+    }
+
+    // Default response
+    return 'Thank you for your message! For specific inquiries about products, orders, or technical support, please visit our Contact page or browse our Catalog. Is there anything else I can help you with?'
+  }
 
   const handleSend = (e?: React.FormEvent) => {
     e?.preventDefault()
@@ -31,11 +96,11 @@ export default function ChatbotWidget() {
     setMessages((prev) => [...prev, userMessage])
     setInput('')
 
+    const botResponse = getBotResponse(trimmed)
     const reply: ChatMessage = {
       id: nextId + 1,
       from: 'bot',
-      text:
-        'Shukriya! Aap ka message mil gaya. Filhaal yeh demo chatbot hai, asal WhatsApp / live chat ke liye owner se connect kar dein.',
+      text: botResponse,
     }
 
     setTimeout(() => {
@@ -49,8 +114,8 @@ export default function ChatbotWidget() {
         <div className="mb-3 w-80 sm:w-96 rounded-2xl shadow-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 bg-black text-white">
             <div>
-              <p className="font-semibold text-sm">Ecolight Chatbot</p>
-              <p className="text-xs text-gray-200">Online • Reply demo only</p>
+              <p className="font-semibold text-sm">Ecolight Support</p>
+              <p className="text-xs text-gray-200">Online • We're here to help</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -87,7 +152,7 @@ export default function ChatbotWidget() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Apna sawal likhein..."
+              placeholder="Type your message..."
               className="flex-1 bg-transparent text-sm px-2 py-1 outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400"
             />
             <button
