@@ -161,7 +161,7 @@ export const products: Product[] = [
     image: 'https://images.pexels.com/photos/1451471/pexels-photo-1451471.jpeg?auto=compress&cs=tinysrgb&w=360',
     slug: 'ecolight-spot-light',
     category: 'products',
-    description: 'Adjustable spot light for highlighting artwork and features',
+    description: 'Adjustable shot light for highlighting artwork and features',
   },
   {
     id: '16',
