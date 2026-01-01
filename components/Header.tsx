@@ -239,10 +239,11 @@ export default function Header() {
               Ecolight
             </Link>
 
-            {/* Right Side Icons - Responsive spacing - Hide search and theme on auth pages */}
+            {/* Right Side Icons - Mobile: Only Theme, Sign up/User, Cart - Desktop: All */}
             <div className="flex items-center gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-3 ml-auto flex-shrink-0">
               {!isAuthPage && (
                 <>
+                  {/* Theme Toggle - Always visible */}
                   <button
                     onClick={toggleTheme}
                     className="p-1.5 sm:p-2 md:p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition text-gray-700 dark:text-gray-300 flex-shrink-0"
@@ -254,20 +255,23 @@ export default function Header() {
                       <FiMoon size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
                     )}
                   </button>
+                  {/* Search Button - Hidden on mobile, visible on desktop */}
                   <button
                     onClick={() => setSearchOpen(!searchOpen)}
-                    className="p-1.5 sm:p-2 md:p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition text-gray-700 dark:text-gray-300 flex-shrink-0"
+                    className="hidden md:flex p-1.5 sm:p-2 md:p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition text-gray-700 dark:text-gray-300 flex-shrink-0"
                     aria-label="Search"
                   >
                     <FiSearch size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </button>
                 </>
               )}
+              
+              {/* User/Admin/Sign up - Mobile: Only Sign up or User, Desktop: Full */}
               {mounted && currentAdmin ? (
                 <div className="relative" ref={userMenuRef}>
                   <Link
                     href="/dashboard"
-                    className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 transition text-gray-700 dark:text-gray-300 flex-shrink-0 font-medium"
+                    className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 sm:px-2.5 md:px-3 py-1.5 sm:py-1.5 md:py-2 transition text-gray-700 dark:text-gray-300 flex-shrink-0 font-medium"
                   >
                     <FiUser size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6 sm:mr-1" />
                     <span className="text-xs sm:text-sm md:text-base hidden sm:inline max-w-[80px] sm:max-w-[100px] md:max-w-[120px] truncate">
@@ -279,7 +283,7 @@ export default function Header() {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setShowLogoutMenu(!showLogoutMenu)}
-                    className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 transition text-gray-700 dark:text-gray-300 flex-shrink-0 font-medium"
+                    className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 sm:px-2.5 md:px-3 py-1.5 sm:py-1.5 md:py-2 transition text-gray-700 dark:text-gray-300 flex-shrink-0 font-medium"
                   >
                     <FiUser size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6 sm:mr-1" />
                     <span className="text-xs sm:text-sm md:text-base hidden sm:inline max-w-[80px] sm:max-w-[100px] md:max-w-[120px] truncate">
@@ -316,21 +320,24 @@ export default function Header() {
                 </div>
               ) : (
                 <>
+                  {/* Login Button - Hidden on mobile, visible on desktop */}
                   <Link
                     href="/account/login"
-                    className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 transition text-gray-700 dark:text-gray-300 flex-shrink-0 font-medium"
+                    className="hidden md:flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 transition text-gray-700 dark:text-gray-300 flex-shrink-0 font-medium"
                   >
                     <FiUser size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6 sm:mr-1" />
                     <span className="text-xs sm:text-sm md:text-base hidden sm:inline">Log in</span>
                   </Link>
+                  {/* Sign up Button - Always visible */}
                   <Link
                     href="/account/signup"
-                    className="flex items-center hover:bg-black dark:hover:bg-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 transition bg-gray-900 dark:bg-gray-800 text-white flex-shrink-0 font-semibold shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base"
+                    className="flex items-center hover:bg-black dark:hover:bg-gray-700 rounded-lg px-2 sm:px-3 md:px-4 py-1.5 sm:py-1.5 md:py-2 transition bg-gray-900 dark:bg-gray-800 text-white flex-shrink-0 font-semibold shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base"
                   >
                     <span>Sign up</span>
                   </Link>
                 </>
               )}
+              {/* Cart Button - Always visible */}
               {!isAuthPage && (
                 <Link
                   ref={cartIconRef}
