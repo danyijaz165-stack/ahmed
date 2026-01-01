@@ -51,7 +51,6 @@ async function connectDB() {
       retryReads: true,
       // Additional options for better connection stability
       heartbeatFrequencyMS: 10000,
-      serverSelectionRetryMS: 5000,
     }
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
