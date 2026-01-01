@@ -31,12 +31,41 @@ export async function POST(request: NextRequest) {
       console.log('Database connected')
     } catch (dbError: any) {
       console.error('Database connection failed:', dbError)
-      if (dbError.message?.includes('ETIMEOUT') || dbError.message?.includes('timeout')) {
+      console.error('Error details:', {
+        message: dbError.message,
+        code: dbError.code,
+        name: dbError.name
+      })
+      
+      // Handle different types of connection errors
+      if (dbError.code === 'ETIMEOUT' || dbError.message?.includes('timeout') || dbError.message?.includes('serverSelectionTimeoutMS')) {
         return NextResponse.json(
-          { error: 'Database connection timeout. Please check your internet connection and try again.' },
+          { error: 'Database connection timeout. Please check MongoDB Atlas Network Access settings - allow 0.0.0.0/0 (all IPs) for Vercel deployment.' },
           { status: 503 }
         )
       }
+      
+      if (dbError.code === 'MISSING_URI' || dbError.message?.includes('MONGODB_URI')) {
+        return NextResponse.json(
+          { error: 'Database configuration missing. Please configure MONGODB_URI in Vercel environment variables.' },
+          { status: 500 }
+        )
+      }
+      
+      if (dbError.code === 8000 || dbError.message?.includes('authentication')) {
+        return NextResponse.json(
+          { error: 'Database authentication failed. Please check MongoDB username and password.' },
+          { status: 500 }
+        )
+      }
+      
+      if (dbError.code === 'ENOTFOUND' || dbError.message?.includes('ENOTFOUND')) {
+        return NextResponse.json(
+          { error: 'Database host not found. Please check your MongoDB cluster URL.' },
+          { status: 500 }
+        )
+      }
+      
       throw dbError
     }
 

@@ -21,27 +21,37 @@ if (!global.mongoose) {
 
 async function connectDB() {
   if (!MONGODB_URI) {
-    console.error('MONGODB_URI is not defined. Please add it to .env.local')
-    throw new Error('Database connection string is missing. Please configure MONGODB_URI in .env.local')
+    console.error('MONGODB_URI is not defined')
+    const error = new Error('Database connection string is missing. Please configure MONGODB_URI environment variable.')
+    ;(error as any).code = 'MISSING_URI'
+    throw error
   }
 
+  // Check if connection is already established
   if (cached.conn) {
-    return cached.conn
+    // Verify connection is still active
+    if (mongoose.connection.readyState === 1) {
+      return cached.conn
+    } else {
+      // Connection lost, reset cache
+      cached.conn = null
+      cached.promise = null
+    }
   }
 
   if (!cached.promise) {
-    const opts = {
+    const opts: mongoose.ConnectOptions = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 30000, // 30 seconds timeout (increased for Vercel)
-      socketTimeoutMS: 45000, // 45 seconds socket timeout
-      connectTimeoutMS: 30000, // 30 seconds connection timeout (increased for Vercel)
-      maxPoolSize: 10,
-      minPoolSize: 1,
+      serverSelectionTimeoutMS: 30000, // 30 seconds (Vercel needs more time)
+      socketTimeoutMS: 45000, // 45 seconds
+      connectTimeoutMS: 30000, // 30 seconds
+      maxPoolSize: 5, // Reduced for serverless
+      minPoolSize: 0, // Serverless doesn't need persistent pool
       retryWrites: true,
       retryReads: true,
-      // Vercel serverless specific optimizations
-      keepAlive: true,
-      keepAliveInitialDelay: 30000,
+      // Additional options for better connection stability
+      heartbeatFrequencyMS: 10000,
+      serverSelectionRetryMS: 5000,
     }
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
@@ -49,16 +59,21 @@ async function connectDB() {
       return mongoose
     }).catch((error: any) => {
       console.error('❌ MongoDB connection error:', error.message)
+      console.error('Error code:', error.code)
+      console.error('Error name:', error.name)
       
       // Better error messages
-      if (error.message?.includes('authentication')) {
-        console.error('💡 Tip: Check your username and password in .env.local')
-      } else if (error.message?.includes('network') || error.message?.includes('timeout')) {
-        console.error('💡 Tip: Check Network Access in MongoDB Atlas - allow your IP address')
-      } else if (error.message?.includes('ENOTFOUND') || error.message?.includes('DNS')) {
+      if (error.message?.includes('authentication') || error.code === 8000) {
+        console.error('💡 Tip: Check your username and password in MongoDB Atlas')
+      } else if (error.message?.includes('network') || error.message?.includes('timeout') || error.code === 'ETIMEOUT') {
+        console.error('💡 Tip: Check Network Access in MongoDB Atlas - allow 0.0.0.0/0 (all IPs)')
+      } else if (error.message?.includes('ENOTFOUND') || error.message?.includes('DNS') || error.code === 'ENOTFOUND') {
         console.error('💡 Tip: Check your cluster URL in the connection string')
+      } else if (error.code === 'ECONNREFUSED') {
+        console.error('💡 Tip: MongoDB server is not accessible. Check Network Access settings.')
       }
       
+      // Clear cache on error
       cached.promise = null
       cached.conn = null
       throw error
@@ -67,8 +82,17 @@ async function connectDB() {
 
   try {
     cached.conn = await cached.promise
-  } catch (e) {
+  } catch (e: any) {
     cached.promise = null
+    cached.conn = null
+    
+    // Enhanced error for timeout
+    if (e.code === 'ETIMEOUT' || e.message?.includes('timeout')) {
+      const timeoutError = new Error('Database connection timeout. Please check MongoDB Atlas Network Access settings and ensure 0.0.0.0/0 is allowed.')
+      ;(timeoutError as any).code = 'ETIMEOUT'
+      throw timeoutError
+    }
+    
     throw e
   }
 
