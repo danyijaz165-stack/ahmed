@@ -194,6 +194,9 @@ export default function ProductCard({
             </p>
           )}
         </div>
+        <Link href={`/products/${slug}`} className="mt-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline">
+          View Product Details
+        </Link>
       </div>
 
       <BuyNowModal

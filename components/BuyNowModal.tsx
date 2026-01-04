@@ -276,9 +276,12 @@ interface BuyNowModalProps {
   quantity: number
   isOpen: boolean
   onClose: () => void
+  selectedWattage?: string
+  selectedColor?: string
+  calculatedPrice?: number
 }
 
-export default function BuyNowModal({ product, quantity, isOpen, onClose }: BuyNowModalProps) {
+export default function BuyNowModal({ product, quantity, isOpen, onClose, selectedWattage, selectedColor, calculatedPrice }: BuyNowModalProps) {
   const router = useRouter()
   const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
@@ -295,7 +298,8 @@ export default function BuyNowModal({ product, quantity, isOpen, onClose }: BuyN
     paymentMethod: 'cash',
   })
 
-  const total = product.price * quantity
+  const itemPrice = calculatedPrice || product.price
+  const total = itemPrice * quantity
   const shipping = total >= 5000 ? 0 : 500
   const finalTotal = total + shipping
 
@@ -322,12 +326,21 @@ export default function BuyNowModal({ product, quantity, isOpen, onClose }: BuyN
     setLoading(true)
 
     try {
+      // Build product name with selected options
+      let productName = product.name
+      if (selectedWattage) {
+        productName += ` (${selectedWattage}W)`
+      }
+      if (selectedColor) {
+        productName += ` - ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}`
+      }
+      
       // Directly place order without adding to cart
       const orderData = {
         items: [{
           id: product.id,
-          name: product.name,
-          price: product.price,
+          name: productName,
+          price: itemPrice,
           image: product.image,
           quantity: quantity,
         }],
@@ -386,7 +399,11 @@ export default function BuyNowModal({ product, quantity, isOpen, onClose }: BuyN
                   />
                 </div>
 
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{product.name}</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  {product.name}
+                  {selectedWattage && ` (${selectedWattage}W)`}
+                  {selectedColor && ` - ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}`}
+                </h4>
                 
                 {product.description && (
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{product.description}</p>
@@ -396,7 +413,7 @@ export default function BuyNowModal({ product, quantity, isOpen, onClose }: BuyN
                   {product.originalPrice && (
                     <div className="flex items-center space-x-2">
                       <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                        PKR {product.price.toLocaleString()}
+                        PKR {itemPrice.toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-400 line-through">
                         PKR {product.originalPrice.toLocaleString()}
@@ -405,7 +422,7 @@ export default function BuyNowModal({ product, quantity, isOpen, onClose }: BuyN
                   )}
                   {!product.originalPrice && (
                     <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                      PKR {product.price.toLocaleString()}
+                      PKR {itemPrice.toLocaleString()}
                     </div>
                   )}
                   <p className="text-xs text-gray-500 dark:text-gray-400">Unit price / per</p>

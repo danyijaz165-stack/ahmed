@@ -100,3 +100,8 @@ Ya phir:
 3. Connection string mein spaces nahi hone chahiye
 4. Password mein special characters ko URL encode karo
 
+
+
+
+
+

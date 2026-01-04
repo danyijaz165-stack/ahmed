@@ -59,3 +59,8 @@ MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/ecolight?
 
 Sign up page par test karo - ab database connection properly work karni chahiye!
 
+
+
+
+
+

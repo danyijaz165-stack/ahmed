@@ -9,9 +9,12 @@ import BuyNowModal from './BuyNowModal'
 
 interface AddToCartButtonProps {
   product: Product
+  selectedWattage?: string
+  selectedColor?: string
+  calculatedPrice?: number
 }
 
-export default function AddToCartButton({ product }: AddToCartButtonProps) {
+export default function AddToCartButton({ product, selectedWattage, selectedColor, calculatedPrice }: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1)
   const [isBuyNowModalOpen, setIsBuyNowModalOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -62,15 +65,27 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
     // Small delay before adding to cart
     setTimeout(async () => {
       try {
+        // Build product name with selected options
+        let productName = product.name
+        if (selectedWattage) {
+          productName += ` (${selectedWattage}W)`
+        }
+        if (selectedColor) {
+          productName += ` - ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}`
+        }
+        
+        const finalPrice = calculatedPrice || product.price
         for (let i = 0; i < quantity; i++) {
           await addToCart({
             id: product.id,
-            name: product.name,
-            price: product.price,
+            name: productName,
+            price: finalPrice,
             image: product.image,
+            wattage: selectedWattage,
+            color: selectedColor,
           })
         }
-        showToast(`${quantity} x ${product.name} added to cart!`, 'success')
+        showToast(`${quantity} x ${productName} added to cart!`, 'success')
       } catch (error: any) {
         showToast(error.message || 'Failed to add to cart', 'error')
       }
@@ -133,6 +148,9 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
         quantity={quantity}
         isOpen={isBuyNowModalOpen}
         onClose={() => setIsBuyNowModalOpen(false)}
+        selectedWattage={selectedWattage}
+        selectedColor={selectedColor}
+        calculatedPrice={calculatedPrice}
       />
     </div>
   )
