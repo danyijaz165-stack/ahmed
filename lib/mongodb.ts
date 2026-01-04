@@ -42,36 +42,53 @@ async function connectDB() {
   if (!cached.promise) {
     const opts: mongoose.ConnectOptions = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 30000, // 30 seconds (Vercel needs more time)
+      serverSelectionTimeoutMS: 15000, // 15 seconds - balanced timeout
       socketTimeoutMS: 45000, // 45 seconds
-      connectTimeoutMS: 30000, // 30 seconds
-      maxPoolSize: 5, // Reduced for serverless
+      connectTimeoutMS: 15000, // 15 seconds - balanced timeout
+      maxPoolSize: 1, // Single connection for serverless
       minPoolSize: 0, // Serverless doesn't need persistent pool
       retryWrites: true,
       retryReads: true,
       // Additional options for better connection stability
       heartbeatFrequencyMS: 10000,
+      // Optimize for serverless
+      maxIdleTimeMS: 30000,
     }
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('✅ MongoDB connected successfully')
-      return mongoose
-    }).catch((error: any) => {
-      console.error('❌ MongoDB connection error:', error.message)
-      console.error('Error code:', error.code)
-      console.error('Error name:', error.name)
-      
-      // Better error messages
-      if (error.message?.includes('authentication') || error.code === 8000) {
-        console.error('💡 Tip: Check your username and password in MongoDB Atlas')
-      } else if (error.message?.includes('network') || error.message?.includes('timeout') || error.code === 'ETIMEOUT') {
-        console.error('💡 Tip: Check Network Access in MongoDB Atlas - allow 0.0.0.0/0 (all IPs)')
-      } else if (error.message?.includes('ENOTFOUND') || error.message?.includes('DNS') || error.code === 'ENOTFOUND') {
-        console.error('💡 Tip: Check your cluster URL in the connection string')
-      } else if (error.code === 'ECONNREFUSED') {
-        console.error('💡 Tip: MongoDB server is not accessible. Check Network Access settings.')
+    // Retry connection logic
+    const connectWithRetry = async (retries = 2): Promise<typeof mongoose> => {
+      try {
+        const mongooseInstance = await mongoose.connect(MONGODB_URI, opts)
+        console.log('✅ MongoDB connected successfully')
+        return mongooseInstance
+      } catch (error: any) {
+        console.error('❌ MongoDB connection error:', error.message)
+        console.error('Error code:', error.code)
+        console.error('Error name:', error.name)
+        
+        // Better error messages
+        if (error.message?.includes('authentication') || error.code === 8000) {
+          console.error('💡 Tip: Check your username and password in MongoDB Atlas')
+        } else if (error.message?.includes('network') || error.message?.includes('timeout') || error.code === 'ETIMEOUT') {
+          console.error('💡 Tip: Check Network Access in MongoDB Atlas - allow 0.0.0.0/0 (all IPs)')
+        } else if (error.message?.includes('ENOTFOUND') || error.message?.includes('DNS') || error.code === 'ENOTFOUND') {
+          console.error('💡 Tip: Check your cluster URL in the connection string')
+        } else if (error.code === 'ECONNREFUSED') {
+          console.error('💡 Tip: MongoDB server is not accessible. Check Network Access settings.')
+        }
+        
+        // Retry logic
+        if (retries > 0 && (error.code === 'ETIMEOUT' || error.message?.includes('timeout'))) {
+          console.log(`🔄 Retrying connection... (${retries} attempts left)`)
+          await new Promise(resolve => setTimeout(resolve, 1000)) // Wait 1 second before retry
+          return connectWithRetry(retries - 1)
+        }
+        
+        throw error
       }
-      
+    }
+
+    cached.promise = connectWithRetry().catch((error: any) => {
       // Clear cache on error
       cached.promise = null
       cached.conn = null
