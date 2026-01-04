@@ -128,6 +128,7 @@ export default function DashboardPage() {
     if (admin) {
       fetchOrders()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin])
 
   const fetchOrders = async () => {

@@ -69,6 +69,7 @@ export default function OrdersPage() {
     if (user) {
       fetchOrders()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const fetchOrders = async () => {
@@ -160,7 +161,7 @@ export default function OrdersPage() {
                 No Orders Yet
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                You haven't placed any orders yet. Start shopping to see your orders here!
+                You haven&apos;t placed any orders yet. Start shopping to see your orders here!
               </p>
               <Link
                 href="/collections/catalog"

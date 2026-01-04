@@ -100,6 +100,7 @@ export default function AdminDashboard() {
     if (admin) {
       fetchOrders()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin])
 
   const fetchOrders = async () => {

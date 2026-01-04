@@ -20,6 +20,7 @@ function OrderSuccessContent() {
     if (orderId) {
       loadOrder()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId])
 
   const loadOrder = async () => {
