@@ -47,7 +47,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {mounted && typeof window !== 'undefined' && (
         <div 
-          className="fixed bottom-6 right-4 z-[100] flex flex-col gap-3 pointer-events-none"
+          className="fixed top-1/2 right-4 -translate-y-1/2 z-[100] flex flex-col gap-3 pointer-events-none"
           style={{
             maxWidth: 'calc(100vw - 2rem)',
           }}
