@@ -118,6 +118,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
   useEffect(() => {
     fetchReviews()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id])
 
   const fetchReviews = async () => {

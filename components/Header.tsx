@@ -98,6 +98,7 @@ export default function Header() {
     const interval = setInterval(checkAuth, 500)
     
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]) // Re-check when route changes
 
   useEffect(() => {

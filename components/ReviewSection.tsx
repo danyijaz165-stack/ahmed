@@ -55,7 +55,7 @@ export default function ReviewSection() {
                   />
                 ))}
               </div>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 italic">"{review.comment}"</p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 italic">&quot;{review.comment}&quot;</p>
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <p className="font-semibold text-xs sm:text-sm text-gray-900 dark:text-gray-100">{review.name}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{review.product}</p>

@@ -124,7 +124,7 @@ export default function ChatbotWidget() {
             <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-black text-white flex-shrink-0">
               <div>
                 <p className="font-semibold text-sm sm:text-base">Ecolight Support</p>
-                <p className="text-xs text-gray-200">Online • We're here to help</p>
+                <p className="text-xs text-gray-200">Online • We&apos;re here to help</p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
